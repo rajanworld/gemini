@@ -7,8 +7,8 @@ const YogaInstructor = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const wsUrl = "https://85f9-2401-4900-1c6f-746b-c515-22c2-4f64-de05.ngrok-free.app";//https://fc54-2401-4900-1c6f-746b-c515-22c2-4f64-de05.ngrok-free.app";//"ws://localhost:8765"; // Change to your machine IP if testing on mobile
-    socketRef.current = new WebSocket(wsUrl);
+    const ngrokUrl = "https://85f9-2401-4900-1c6f-746b-c515-22c2-4f64-de05.ngrok-free.app"; // Replace with your actual ngrok WebSocket URL
+    socketRef.current = new WebSocket(ngrokUrl);
 
     socketRef.current.onopen = () => {
       console.log("WebSocket connection opened");
@@ -16,8 +16,14 @@ const YogaInstructor = () => {
 
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      // Append the streamed text to the messages
-      setMessages((prev) => [...prev, data.text]);
+      if (data.text) {
+        setMessages((prev) => [...prev, data.text]);
+
+        // Use Speech Synthesis API for TTS
+        const utterance = new SpeechSynthesisUtterance(data.text);
+        // Optionally, set voice parameters here
+        speechSynthesis.speak(utterance);
+      }
     };
 
     socketRef.current.onerror = (error) => {
@@ -50,9 +56,11 @@ const YogaInstructor = () => {
   }, [lastPoseData]);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
       <h1>Yoga Instructor</h1>
-      <p>Every 5 seconds, we'll request posture feedback from the model based on your current pose.</p>
+      <p>
+        Capture your posture and receive real-time guidance every 5 seconds.
+      </p>
 
       <PoseDetection
         onPoseData={(landmarks) => {
@@ -60,7 +68,17 @@ const YogaInstructor = () => {
         }}
       />
 
-      <div style={{ marginTop: "20px", whiteSpace: "pre-wrap", background: "#f9f9f9", padding: "10px", borderRadius: "5px" }}>
+      <div
+        style={{
+          marginTop: "20px",
+          whiteSpace: "pre-wrap",
+          background: "#f9f9f9",
+          padding: "10px",
+          borderRadius: "5px",
+          height: "200px",
+          overflowY: "auto",
+        }}
+      >
         <h2>Guidance</h2>
         {messages.map((m, i) => (
           <p key={i}>{m}</p>

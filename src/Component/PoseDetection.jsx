@@ -17,13 +17,13 @@ const PoseDetection = (props) => {
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
     });
 
-    // Increase model complexity and thresholds for more accurate detection
+    // Increase model complexity and confidence thresholds for better accuracy
     pose.setOptions({
-      modelComplexity: 2, // more accurate model
+      modelComplexity: 2, // More accurate model
       smoothLandmarks: true,
       enableSegmentation: false,
-      minDetectionConfidence: 0.7, // higher confidence threshold
-      minTrackingConfidence: 0.7,  // higher tracking confidence
+      minDetectionConfidence: 0.7, // Higher detection confidence
+      minTrackingConfidence: 0.7,  // Higher tracking confidence
     });
 
     pose.onResults(onResults);
@@ -33,7 +33,9 @@ const PoseDetection = (props) => {
       const startCamera = async () => {
         try {
           const devices = await navigator.mediaDevices.enumerateDevices();
-          const videoInputDevices = devices.filter((device) => device.kind === "videoinput");
+          const videoInputDevices = devices.filter(
+            (device) => device.kind === "videoinput"
+          );
 
           if (videoInputDevices.length === 0) {
             console.error("No webcam devices found.");
@@ -128,7 +130,8 @@ const PoseDetection = (props) => {
 
   return (
     <div style={{
-      width: "640px", 
+      width: "100%", 
+      maxWidth: "640px", 
       margin: "0 auto", 
       background: "#eee", 
       padding: "10px", 
@@ -138,15 +141,17 @@ const PoseDetection = (props) => {
       <button onClick={toggleCamera} style={{ marginBottom: "10px" }}>
         Switch Camera
       </button>
-      <div style={{ position: "relative", display: "block", width: "640px", height: "360px", overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" /* 16:9 Aspect Ratio */ }}>
         <Webcam
           ref={webcamRef}
           videoConstraints={{ facingMode }}
           style={{
-            width: "640px",
-            height: "360px",
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
             objectFit: "cover",
-            display: "block"
           }}
         />
         <canvas
@@ -155,9 +160,9 @@ const PoseDetection = (props) => {
             position: "absolute",
             left: 0,
             top: 0,
-            width: "640px",
-            height: "360px",
-            pointerEvents: "none"
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
           }}
         />
         <div
@@ -165,14 +170,19 @@ const PoseDetection = (props) => {
             position: "absolute",
             left: 0,
             top: 0,
-            width: "640px",
-            height: "360px",
+            width: "100%",
+            height: "100%",
             boxSizing: "border-box",
             pointerEvents: "none",
             border: feedback === "Good posture!" ? "5px solid green" : "5px solid red",
             color: "#000",
             padding: "10px",
-            backgroundColor: "rgba(255,255,255,0.4)"
+            backgroundColor: "rgba(255,255,255,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.2em",
+            textAlign: "center",
           }}
         >
           {feedback}
