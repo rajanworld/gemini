@@ -7,7 +7,7 @@ const YogaInstructor = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const wsUrl = "ws://192.168.1.3:8765";//https://fc54-2401-4900-1c6f-746b-c515-22c2-4f64-de05.ngrok-free.app";//"ws://localhost:8765"; // Change to your machine IP if testing on mobile
+    const wsUrl = "ws://localhost:8765";//https://fc54-2401-4900-1c6f-746b-c515-22c2-4f64-de05.ngrok-free.app";//"ws://localhost:8765"; // Change to your machine IP if testing on mobile
     socketRef.current = new WebSocket(wsUrl);
 
     socketRef.current.onopen = () => {
