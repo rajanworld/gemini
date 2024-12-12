@@ -4,6 +4,7 @@ import PoseDetection from "./Component/PoseDetection";
 const YogaInstructor = () => {
   const [messages, setMessages] = useState([]);
   const [lastPoseData, setLastPoseData] = useState(null);
+  const [ttsEnabled, setTtsEnabled] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -19,10 +20,12 @@ const YogaInstructor = () => {
       if (data.text) {
         setMessages((prev) => [...prev, data.text]);
 
-        // Use Speech Synthesis API for TTS
-        const utterance = new SpeechSynthesisUtterance(data.text);
-        // Optionally, set voice parameters here
-        speechSynthesis.speak(utterance);
+        if (ttsEnabled) {
+          // Use Speech Synthesis API for TTS
+          const utterance = new SpeechSynthesisUtterance(data.text);
+          // Optionally, set voice parameters here
+          speechSynthesis.speak(utterance);
+        }
       }
     };
 
@@ -30,10 +33,14 @@ const YogaInstructor = () => {
       console.error("WebSocket error:", error);
     };
 
+    socketRef.current.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
     return () => {
       if (socketRef.current) socketRef.current.close();
     };
-  }, []);
+  }, [ttsEnabled]);
 
   const sendData = (poseLandmarks, userText = "") => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -61,6 +68,21 @@ const YogaInstructor = () => {
       <p>
         Capture your posture and receive real-time guidance every 5 seconds.
       </p>
+
+      {/* Button to enable TTS */}
+      {!ttsEnabled && (
+        <button
+          onClick={() => setTtsEnabled(true)}
+          style={{
+            padding: "10px 20px",
+            marginBottom: "20px",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
+          Enable Voice Feedback
+        </button>
+      )}
 
       <PoseDetection
         onPoseData={(landmarks) => {
